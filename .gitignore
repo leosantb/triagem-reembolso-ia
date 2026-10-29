@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+data/
+modelos/
+.env
+git add .
+git commit -m "Estrutura inicial do projeto"
+git push
