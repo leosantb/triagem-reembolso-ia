@@ -4,4 +4,4 @@ Na primeira versão, os motivos exibidos para o atendente eram escritos por regr
 
 O resumo de cada caso é gerado localmente com o Ollama. Para deixar as respostas mais confiáveis, montei o prompt com algumas técnicas. Em vez de nomes técnicos de colunas, o modelo recebe os dados traduzidos em texto, como "pedido não entregue, de R$ 45,00, risco médio". As regras de escrita (português do Brasil, acentuação correta etc.) ficam no campo system, separadas dos dados do caso, e o prompt inclui um resumo pronto como exemplo de tom e formato (few-shot). Usei temperatura 0,2 para deixar as respostas mais previsíveis e deixei o score fora do prompt, para o modelo não errar nem inventar números. Por fim, o sistema confere cada resposta: se o texto vier longo demais ou com palavras em inglês, ele é descartado e o atendente recebe o resumo padrão. O LLM só resume o caso; a classificação vem sempre da regressão logística.
 
-![Demonstração da triagem](docs/item_faltando.gif)
+![Demonstração da triagem](docs/triagem.gif)
