@@ -1,5 +1,9 @@
 ![Demonstração da triagem](docs/triagem.gif)
+## Como rodar localmente
 
+Para apenas testar a triagem, use a [demo online](https://triagem-reembolso-leosantb.streamlit.app/). Para rodar os testes, a API, a comparação de modelos ou os resumos com LLM, siga os passos abaixo.
+
+> A demo online pode levar alguns segundos para abrir se estiver hibernando. Nela, o resumo para o atendente usa o texto padrão; rodando localmente com o Ollama, ele é gerado por um LLM.
 1. O problema: reembolso é a maior fonte de reclamações sobre delivery e já virou ação do Ministério Público de Goiás contra negativas automáticas. https://tribunadoplanalto.com.br/mpgo-vai-a-justica-contra-ifood-e-aponta-falhas-em-entregas-e-reembolsos/
 
 ## A solução
