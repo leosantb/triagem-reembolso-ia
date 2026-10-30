@@ -222,5 +222,23 @@ data/
 modelos/
 .env
 git add .
-git commit -m "Estrutura inicial do projeto"
+git commit -m "Compara modelos e escolhe regressão logística"
+git push
+git add .
+git commit -m "Triagem com faixas e motivos"
+git push
+git add .
+git commit -m "Resumo para o atendente com LLM"
+git push
+git add .
+git commit -m "API de triagem"
+git push
+git add .
+git commit -m "Dispensa foto em pedidos não entregue e usa o GPS como evidência"
+git push
+git add .
+git commit -m "Melhora o português do resumo para o atendente"
+git push
+git add .
+git commit -m "Motivos calculados a partir das contribuições do modelo"
 git push
