@@ -131,6 +131,7 @@ docker run -p 8501:8501 triagem-reembolso
 ```
 
 A demo fica disponível em `http://localhost:8501`. O container gera os dados e treina o modelo durante o build.
+Se a porta 8501 estiver ocupada, troque o primeiro número: `docker run -p 8502:8501 triagem-reembolso`, e acesse `http://localhost:8502`.
 ## Resultados
 
 Os modelos foram avaliados em 1.000 casos de teste (20% dos dados), que não foram usados no treino. Como só cerca de 22% dos casos são fraude (216 de 1.000), as métricas abaixo se referem à **classe fraude**, que é a que importa detectar.
