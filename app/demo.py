@@ -1,9 +1,17 @@
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))  # deixa importar o src
+RAIZ = Path(__file__).resolve().parents[1]
+sys.path.append(str(RAIZ))  # deixa importar o src
 
 import streamlit as st
+
+# Na primeira vez (por exemplo, no Streamlit Cloud), o modelo ainda não existe:
+# geramos os dados e treinamos antes de carregar a triagem.
+if not (RAIZ / "modelos" / "modelo_risco.joblib").exists():
+    with st.spinner("Preparando o modelo pela primeira vez. Isso leva alguns segundos..."):
+        import src.gerar_dados  # noqa: F401 (gera os dados ao ser importado)
+        import src.treinar  # noqa: F401 (treina e salva o modelo ao ser importado)
 
 from src.resumo_llm import gerar_resumo
 from src.triagem import triar
