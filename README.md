@@ -61,7 +61,7 @@ Para cada caso, o sistema mostra os fatores que mais pesaram, como "Aumenta a su
 ### 1. Baixe o projeto e prepare o ambiente
 
 ```bash
-git clone https://github.com/SEU-USUARIO/triagem-reembolso-ia.git
+git clone https://github.com/leosantb/triagem-reembolso-ia.git
 cd triagem-reembolso-ia
 python -m venv venv
 ```
