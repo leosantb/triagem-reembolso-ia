@@ -4,6 +4,8 @@ Extensão do projeto de [triagem de reembolso](../README.md). O agente recebe a 
 
 O alvo são as duas reclamações mais comuns sobre atendimento de delivery: reembolso negado sem explicação e resposta genérica que não trata do problema.
 
+**[Abrir a demo online](https://agente-atendimento-triagem.streamlit.app/)**: roda sem LLM, com os fatos do chamado informados num formulário (veja [Demo online](#demo-online-sem-llm)).
+
 ## A ideia principal: o LLM conversa, o código decide
 
 O modelo de linguagem participa só das pontas: extrai os fatos da mensagem e redige a resposta. **Aprovar, negar e calcular o valor do reembolso são decididos por regras em código** e pela triagem. Assim a decisão é auditável, e o LLM não tem como inventar valores.
@@ -53,7 +55,7 @@ Para parar: `docker compose down`.
 
 ### Demo online (sem LLM)
 
-A mesma tela roda no Streamlit Cloud sem Docker, sem LLM e sem chave de API, no mesmo esquema da demo da triagem:
+A mesma tela está publicada em **https://agente-atendimento-triagem.streamlit.app/**. Ela roda no Streamlit Cloud sem Docker, sem LLM e sem chave de API, no mesmo esquema da demo da triagem:
 
 - O modelo de risco e as regras rodam de verdade, e o modelo é treinado na primeira execução.
 - Os fatos do chamado (tipo de problema, itens afetados, pedido de saldo) vêm de um formulário, no lugar da extração pelo LLM.
