@@ -1,0 +1,77 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    # 11435 no host: a 11434 já é do Ollama nativo usado pela triagem (llama3.2).
+    ports: ["${OLLAMA_HOST_PORT:-11435}:11434"]
+    volumes: [ollama_data:/root/.ollama]
+    # Mantém o modelo carregado na GPU: sem isso ele é descarregado após 5 min parado e o
+    # próximo chamado espera ~60 s para recarregar.
+    environment: [OLLAMA_KEEP_ALIVE=24h]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      retries: 10
+    # GPU NVIDIA (RTX 4070 SUPER, 12 GB). Sem GPU: comente este bloco.
+    deploy:
+      resources:
+        reservations:
+          devices: [{driver: nvidia, count: all, capabilities: [gpu]}]
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    depends_on:
+      ollama: {condition: service_healthy}
+    # Baixa o modelo (só na primeira vez) e já o carrega na GPU, para o 1º chamado não esperar.
+    entrypoint: ["sh", "-c",
+                 "ollama pull \"$$LLM_MODEL\" && ollama run \"$$LLM_MODEL\" 'ok' > /dev/null"]
+    environment:
+      - OLLAMA_HOST=ollama:11434
+      - LLM_MODEL=${LLM_MODEL:-qwen2.5:7b}
+
+  # Projeto de triagem existente (raiz do repositório), usado SEM alterações:
+  # mesmo Dockerfile (treina o modelo no build); só o comando é trocado para servir
+  # a API FastAPI (src/api.py) em vez do Streamlit. Sem porta publicada: só rede interna.
+  triagem:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    command: ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8001"]
+    expose: ["8001"]
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8001/openapi.json')"]
+      interval: 10s
+      retries: 10
+      start_period: 20s
+
+  api:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - TRIAGE_MODE=http
+      - TRIAGE_URL=http://triagem:8001
+    ports: ["8000:8000"]
+    depends_on:
+      ollama-pull: {condition: service_completed_successfully}
+      triagem: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      retries: 10
+
+  # Tela Streamlit do agente. 8502 no host: a 8501 fica para o demo da triagem (app/demo.py).
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    environment: [AGENT_URL=http://api:8000]
+    ports: ["8502:8501"]
+    depends_on:
+      api: {condition: service_healthy}
+
+volumes:
+  ollama_data:

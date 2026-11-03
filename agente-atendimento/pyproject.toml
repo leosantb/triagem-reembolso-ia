@@ -1,0 +1,37 @@
+[project]
+name = "agente-atendimento"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn>=0.30",  # sem [standard]: o PyYAML ainda não tem wheel para Python 3.15 no Windows
+  "pydantic>=2.7",
+  "pydantic-settings>=2.3",
+  "ollama>=0.4",
+  "structlog>=24.1",
+  "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.5", "mypy>=1.10"]
+# Só para rodar a triagem in-process (LocalTriageAdapter) e o teste de integração.
+# Versões iguais às do venv da triagem: o modelo_risco.joblib precisa da mesma versão
+# do scikit-learn que o gerou.
+ui = ["streamlit>=1.40"]  # tela local (ui/app.py), roda no container "ui"
+local-triage = ["scikit-learn==1.9.1", "pandas==3.1.0", "joblib==1.6.0", "numpy==2.5.4"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agente"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests/unit", "tests/integration"]
+markers = ["integration: usa o projeto de triagem real (modelo treinado)"]
