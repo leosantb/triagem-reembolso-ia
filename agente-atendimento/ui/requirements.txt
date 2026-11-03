@@ -1,7 +1,9 @@
 # Demo online do agente (Streamlit Cloud, arquivo de entrada: agente-atendimento/ui/app.py).
 # Sem LLM: não precisa de ollama nem de fastapi. O modelo da triagem é treinado na
 # primeira execução com as mesmas versões do venv da triagem.
-streamlit==1.66.1
+# Streamlit fixo na 1.56 (última com servidor Tornado): da 1.57 em diante (Starlette +
+# uvicorn) a demo no Streamlit Cloud deixava arquivos da tela sem resposta e não abria.
+streamlit==1.56.0
 pydantic>=2.7
 pydantic-settings>=2.3
 structlog>=24.1
