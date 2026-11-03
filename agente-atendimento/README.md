@@ -51,6 +51,16 @@ Na primeira vez, o modelo `qwen2.5:7b` (cerca de 4,7 GB) é baixado. Depois diss
 
 Para parar: `docker compose down`.
 
+### Demo online (sem LLM)
+
+A mesma tela roda no Streamlit Cloud sem Docker, sem LLM e sem chave de API, no mesmo esquema da demo da triagem:
+
+- O modelo de risco e as regras rodam de verdade, e o modelo é treinado na primeira execução.
+- Os fatos do chamado (tipo de problema, itens afetados, pedido de saldo) vêm de um formulário, no lugar da extração pelo LLM.
+- A resposta ao cliente usa o texto padrão, que já passa na conferência.
+
+Para publicar: no [Streamlit Community Cloud](https://share.streamlit.io), crie um app apontando para este repositório com o arquivo `agente-atendimento/ui/app.py` e Python 3.12. As dependências estão em `agente-atendimento/ui/requirements.txt`.
+
 ### Sem Docker
 
 ```bash
