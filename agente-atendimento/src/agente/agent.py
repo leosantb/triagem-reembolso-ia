@@ -24,7 +24,7 @@ REPLY_PROMPT = (_PROMPTS / "reply.md").read_text(encoding="utf-8")
 class SupportAgent:
     def __init__(
         self,
-        llm: LLMClient,
+        llm: LLMClient | None,  # None: sem LLM (demo online) -> fatos informados + template
         orders: OrderRepository,
         triage: TriageService,
         store: DecisionStore,
@@ -33,7 +33,14 @@ class SupportAgent:
         self.llm, self.orders, self.triage = llm, orders, triage
         self.store, self.settings = store, settings
 
-    async def handle(self, ticket: Ticket) -> AgentReply:
+    async def handle(
+        self, ticket: Ticket, facts_override: ExtractedFacts | None = None
+    ) -> AgentReply:
+        """Atende o chamado.
+
+        `facts_override`: fatos já informados (ex.: formulário da demo online, onde não há
+        LLM). Pula a extração, mas os fatos passam pela mesma limpeza e pelas mesmas regras.
+        """
         trace_id = uuid.uuid4().hex
         tlog = log.bind(trace_id=trace_id, ticket_id=ticket.ticket_id)
         # LGPD: mascara dados pessoais antes de qualquer chamada ao LLM e de qualquer log
@@ -46,7 +53,10 @@ class SupportAgent:
         if order is None or order.customer_id != ticket.customer_id:
             decision = escalate("pedido_invalido")
         else:
-            facts = await self._extract_facts(ticket, tlog)
+            if facts_override is not None:
+                facts = self._sanitize(facts_override, order)
+            else:
+                facts = await self._extract_facts(ticket, tlog)
             if facts is None:
                 decision = escalate("extracao_falhou")
             else:
@@ -64,6 +74,8 @@ class SupportAgent:
         )
 
     async def _extract_facts(self, ticket: Ticket, tlog: Any) -> ExtractedFacts | None:
+        if self.llm is None:  # sem LLM e sem fatos informados -> escala
+            return None
         try:
             return await self._extract_facts_llm(ticket, tlog)
         except Exception as exc:  # LLM fora do ar ou resposta malformada -> escala
@@ -133,6 +145,8 @@ class SupportAgent:
     async def _write_reply(
         self, facts: ExtractedFacts | None, decision: Decision, tlog: Any
     ) -> str:
+        if self.llm is None:  # sem LLM: texto padrão, que já passa no guardrail
+            return fallback_reply(decision)
         context = {
             "acao": decision.action.value,
             "valor": str(decision.amount),
