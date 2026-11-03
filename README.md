@@ -1,7 +1,5 @@
 # Triagem de reembolso e agente de atendimento com IA
 
-![Demonstração da triagem](docs/triagem.gif)
-
 Sistema de estudo para pedidos de reembolso em apps de delivery, em duas partes que funcionam juntas:
 
 - **Triagem de risco:** um modelo de machine learning separa os pedidos por nível de risco e explica cada decisão. Aprova sozinho só os casos claros e nunca nega sozinho.
