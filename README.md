@@ -257,6 +257,11 @@ Definir os limites de 0,30 e 0,70 a partir do custo de cada tipo de erro e da ca
 ### 6. Avaliação do resumo gerado por LLM
 
 Criar um conjunto de casos de teste com resumos de referência e medir automaticamente erros de português, informações inventadas e omissões, para comparar modelos e prompts de forma objetiva.
+
+## Extensão: agente de atendimento
+
+A pasta [`agente-atendimento/`](agente-atendimento/README.md) traz um agente que recebe a mensagem do cliente, usa esta triagem sem alterações e responde com uma decisão justificada. O LLM extrai os fatos e redige a resposta; aprovar, negar e calcular o valor ficam com regras em código. Detalhes, como rodar e resultados estão no [README do agente](agente-atendimento/README.md).
+
 ## Aviso
 
 Este é um **projeto pessoal de estudo**, criado para praticar machine learning, APIs e IA generativa aplicados a um problema real.
