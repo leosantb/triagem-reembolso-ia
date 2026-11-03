@@ -53,12 +53,25 @@ TIPOS = {
 }
 _TIPOS_COM_ITENS = {IssueType.ITEM_FALTANDO, IssueType.ITEM_ERRADO, IssueType.QUALIDADE}
 
+# Cor da caixa do resultado: verde = reembolso automático, amarelo = suspeito / análise
+# humana, vermelho = negado automaticamente, azul = falta informação do cliente.
 ACOES = {
-    "reembolsar": (st.success, "Reembolso aprovado"),
-    "negar": (st.error, "Reembolso negado"),
-    "pedir_info": (st.info, "Pedir mais informações ao cliente"),
-    "escalar_humano": (st.warning, "Encaminhado para uma pessoa do time"),
+    "reembolsar": (st.success, "Reembolsado automaticamente"),
+    "negar": (st.error, "Negado automaticamente"),
+    "pedir_info": (st.info, "Aguardando informações do cliente"),
+    "escalar_humano": (st.warning, "Encaminhado para análise humana"),
 }
+SUSPEITO = "Caso suspeito: encaminhado para análise humana"  # escalado por risco da triagem
+
+
+def _md(text: str) -> str:
+    """Escapa "$": no Streamlit, dois "$" no mesmo texto viram fórmula matemática."""
+    return str(text).replace("$", "\\$")
+
+
+def _txt(code: str) -> str:
+    """Código interno como texto comum: escapa "_" para o Markdown não virar itálico."""
+    return str(code).replace("_", "\\_")
 
 
 @st.cache_resource(show_spinner="Preparando o modelo da triagem pela primeira vez...")
@@ -86,7 +99,7 @@ order = asyncio.run(FakeOrderRepository().get(order_id))
 with st.expander("Ver pedido", expanded=True):
     st.write(f"Status: **{order.status}** · pagamento: **{order.payment_method.value}**")
     for i in order.items:
-        st.write(f"- {i.qty}× {i.name} (`{i.sku}`) — {format_brl(i.unit_price)}")
+        st.write(f"- {i.qty}× {i.name} — {format_brl(i.unit_price)}")
     st.write(f"Entrega {format_brl(order.delivery_fee)} · serviço {format_brl(order.service_fee)}")
 
 message = st.text_area("Mensagem do cliente", value=exemplo, key=f"msg-{order_id}", height=100)
@@ -136,21 +149,22 @@ if st.button("Enviar chamado", type="primary"):
         st.stop()
 
     d = r["decision"]
-    show, label = ACOES.get(d["action"], (st.write, d["action"]))
-    extra = ""
+    show, label = ACOES.get(d["action"], (st.info, d["action"]))
+    if d["action"] == "escalar_humano" and d["reason_code"] == "risco":
+        label = SUSPEITO
     if d["action"] == "reembolsar":
-        extra = f": {format_brl(Decimal(d['amount']))} → {d['refund_to']}"
-    show(f"{label}{extra}")
+        label += f": {format_brl(Decimal(d['amount']))} → {d['refund_to']}"
 
     st.subheader("Resposta ao cliente")
-    st.write(r["message"])
+    # uma caixa só, na cor da decisão: título + texto enviado ao cliente
+    show(f"**{_md(label)}**\n\n{_md(r['message'])}")
 
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Decisão")
-        st.write(f"Motivo: `{d['reason_code']}`")
-        st.write(f"Responsável: `{d['responsible']}`")
-        st.write("Regras: " + " → ".join(f"`{x}`" for x in d["rule_trace"]))
+        st.write(f"Motivo: {_txt(d['reason_code'])}")
+        st.write(f"Responsável: {_txt(d['responsible'])}")
+        st.write("Regras: " + " → ".join(_txt(x) for x in d["rule_trace"]))
     with col2:
         st.subheader("Triagem")
         t = r.get("triage")
@@ -159,9 +173,9 @@ if st.button("Enviar chamado", type="primary"):
         else:
             if t.get("score") is not None:
                 st.metric("Score de risco (P(fraude))", f"{t['score']:.3f}")
-            st.write(f"Resultado: `{t['reason_code']}`")
+            st.write(f"Resultado: {_txt(t['reason_code'])}")
             if t["risk_flags"]:
-                st.write("Alertas: " + ", ".join(f"`{f}`" for f in t["risk_flags"]))
+                st.write("Alertas: " + ", ".join(_txt(f) for f in t["risk_flags"]))
             for m in t.get("reasons", []):
                 st.write(f"- {m}")
 
