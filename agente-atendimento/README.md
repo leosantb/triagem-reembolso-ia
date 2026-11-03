@@ -4,8 +4,6 @@ Extensão do projeto de [triagem de reembolso](../README.md). O agente recebe a 
 
 O alvo são as duas reclamações mais comuns sobre atendimento de delivery: reembolso negado sem explicação e resposta genérica que não trata do problema.
 
-**[Abrir a demo online](https://agente-atendimento-triagem.streamlit.app/)**: roda sem LLM, com os fatos do chamado informados num formulário (veja [Demo online](#demo-online-sem-llm)).
-
 ## A ideia principal: o LLM conversa, o código decide
 
 O modelo de linguagem participa só das pontas: extrai os fatos da mensagem e redige a resposta. **Aprovar, negar e calcular o valor do reembolso são decididos por regras em código** e pela triagem. Assim a decisão é auditável, e o LLM não tem como inventar valores.
@@ -52,16 +50,6 @@ Na primeira vez, o modelo `qwen2.5:7b` (cerca de 4,7 GB) é baixado. Depois diss
 - **API:** http://localhost:8000/docs
 
 Para parar: `docker compose down`.
-
-### Demo online (sem LLM)
-
-A mesma tela está publicada em **https://agente-atendimento-triagem.streamlit.app/**. Ela roda no Streamlit Cloud sem Docker, sem LLM e sem chave de API:
-
-- O modelo de risco e as regras rodam de verdade, e o modelo é treinado na primeira execução.
-- Os fatos do chamado (tipo de problema, itens afetados, pedido de saldo) vêm de um formulário, no lugar da extração pelo LLM.
-- A resposta ao cliente usa o texto padrão, que já passa na conferência.
-
-Para publicar: no [Streamlit Community Cloud](https://share.streamlit.io), crie um app apontando para este repositório com o arquivo `agente-atendimento/ui/app.py` e Python 3.12. As dependências estão em `agente-atendimento/ui/requirements.txt`.
 
 ### Sem Docker
 

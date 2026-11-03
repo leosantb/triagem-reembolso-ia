@@ -5,10 +5,6 @@ Sistema de estudo para pedidos de reembolso em apps de delivery, em duas partes 
 - **Triagem de risco:** um modelo de machine learning separa os pedidos por nível de risco e explica cada decisão. Aprova sozinho só os casos claros e nunca nega sozinho.
 - **Agente de atendimento:** recebe a mensagem do cliente, usa a triagem e responde com uma decisão específica e justificada. Um LLM local lê e escreve; as decisões sobre dinheiro ficam com regras em código.
 
-**[Abrir a demo online](https://agente-atendimento-triagem.streamlit.app/)**: escolha um pedido, informe o problema e veja a triagem, as regras aplicadas, a decisão e a resposta ao cliente. Ela pode levar alguns segundos para abrir se estiver hibernando.
-
-Na demo online não há LLM: o modelo de risco e as regras rodam de verdade, e a resposta usa o texto padrão. Rodando localmente com o Ollama, o LLM extrai os fatos da mensagem do cliente e redige as respostas.
-
 ## O problema
 
 Reembolso é a maior fonte de reclamações sobre delivery e já virou ação do Ministério Público de Goiás contra negativas automáticas ([fonte](https://tribunadoplanalto.com.br/mpgo-vai-a-justica-contra-ifood-e-aponta-falhas-em-entregas-e-reembolsos/)). As duas queixas mais comuns são **reembolso negado sem explicação** e **atendimento que responde com texto genérico**.
