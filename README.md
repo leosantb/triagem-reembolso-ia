@@ -5,14 +5,9 @@ Sistema de estudo para pedidos de reembolso em apps de delivery, em duas partes 
 - **Triagem de risco:** um modelo de machine learning separa os pedidos por nível de risco e explica cada decisão. Aprova sozinho só os casos claros e nunca nega sozinho.
 - **Agente de atendimento:** recebe a mensagem do cliente, usa a triagem e responde com uma decisão específica e justificada. Um LLM local lê e escreve; as decisões sobre dinheiro ficam com regras em código.
 
-**Demos online** (podem levar alguns segundos para abrir se estiverem hibernando):
+**[Abrir a demo online](https://agente-atendimento-triagem.streamlit.app/)**: escolha um pedido, informe o problema e veja a triagem, as regras aplicadas, a decisão e a resposta ao cliente. Ela pode levar alguns segundos para abrir se estiver hibernando.
 
-| Demo | O que mostra |
-| --- | --- |
-| [Agente de atendimento](https://agente-atendimento-triagem.streamlit.app/) | O sistema integrado: escolha um pedido, informe o problema e veja a triagem, as regras aplicadas, a decisão e a resposta ao cliente |
-| [Triagem de risco](https://triagem-reembolso-leosantb.streamlit.app/) | Só o modelo de risco: preencha os dados de um pedido e veja score, faixa e motivos |
-
-Nas demos online não há LLM: o modelo de risco e as regras rodam de verdade, e os textos usam respostas padrão. Rodando localmente com o Ollama, o LLM extrai os fatos da mensagem do cliente e redige as respostas.
+Na demo online não há LLM: o modelo de risco e as regras rodam de verdade, e a resposta usa o texto padrão. Rodando localmente com o Ollama, o LLM extrai os fatos da mensagem do cliente e redige as respostas.
 
 ## O problema
 

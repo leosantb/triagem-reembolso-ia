@@ -55,7 +55,7 @@ Para parar: `docker compose down`.
 
 ### Demo online (sem LLM)
 
-A mesma tela está publicada em **https://agente-atendimento-triagem.streamlit.app/**. Ela roda no Streamlit Cloud sem Docker, sem LLM e sem chave de API, no mesmo esquema da demo da triagem:
+A mesma tela está publicada em **https://agente-atendimento-triagem.streamlit.app/**. Ela roda no Streamlit Cloud sem Docker, sem LLM e sem chave de API:
 
 - O modelo de risco e as regras rodam de verdade, e o modelo é treinado na primeira execução.
 - Os fatos do chamado (tipo de problema, itens afetados, pedido de saldo) vêm de um formulário, no lugar da extração pelo LLM.
