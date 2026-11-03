@@ -25,6 +25,8 @@ from agente.adapters.fake_orders import FakeOrderRepository  # noqa: E402
 from agente.domain.models import (  # noqa: E402
     AffectedItem, ExtractedFacts, IssueType, Ticket,
 )
+from agente.labels import alert_flags, refund_destination  # noqa: E402
+from agente.labels import label as nome  # noqa: E402
 from agente.policy import format_brl  # noqa: E402
 
 AGENT_URL = os.environ.get("AGENT_URL", "").rstrip("/")
@@ -69,9 +71,6 @@ def _md(text: str) -> str:
     return str(text).replace("$", "\\$")
 
 
-def _txt(code: str) -> str:
-    """Código interno como texto comum: escapa "_" para o Markdown não virar itálico."""
-    return str(code).replace("_", "\\_")
 
 
 @st.cache_resource(show_spinner="Preparando o modelo da triagem pela primeira vez...")
@@ -97,7 +96,8 @@ customer_id, _, exemplo, tipo_padrao, itens_padrao = PEDIDOS[order_id]
 
 order = asyncio.run(FakeOrderRepository().get(order_id))
 with st.expander("Ver pedido", expanded=True):
-    st.write(f"Status: **{order.status}** · pagamento: **{order.payment_method.value}**")
+    st.write(f"Status: **{nome(order.status)}** · "
+             f"pagamento: **{nome(order.payment_method.value)}**")
     for i in order.items:
         st.write(f"- {i.qty}× {i.name} — {format_brl(i.unit_price)}")
     st.write(f"Entrega {format_brl(order.delivery_fee)} · serviço {format_brl(order.service_fee)}")
@@ -153,7 +153,8 @@ if st.button("Enviar chamado", type="primary"):
     if d["action"] == "escalar_humano" and d["reason_code"] == "risco":
         label = SUSPEITO
     if d["action"] == "reembolsar":
-        label += f": {format_brl(Decimal(d['amount']))} → {d['refund_to']}"
+        label += (f": {format_brl(Decimal(d['amount']))} "
+                  f"{refund_destination(d['refund_to'])}").rstrip()
 
     st.subheader("Resposta ao cliente")
     # uma caixa só, na cor da decisão: título + texto enviado ao cliente
@@ -162,9 +163,11 @@ if st.button("Enviar chamado", type="primary"):
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Decisão")
-        st.write(f"Motivo: {_txt(d['reason_code'])}")
-        st.write(f"Responsável: {_txt(d['responsible'])}")
-        st.write("Regras: " + " → ".join(_txt(x) for x in d["rule_trace"]))
+        st.write(f"**Motivo:** {_md(nome(d['reason_code']))}")
+        st.write(f"**Responsável:** {_md(nome(d['responsible']))}")
+        st.write("**Caminho da decisão:**")
+        for passo in d["rule_trace"]:
+            st.write(f"- {_md(nome(passo))}")
     with col2:
         st.subheader("Triagem")
         t = r.get("triage")
@@ -173,9 +176,11 @@ if st.button("Enviar chamado", type="primary"):
         else:
             if t.get("score") is not None:
                 st.metric("Score de risco (P(fraude))", f"{t['score']:.3f}")
-            st.write(f"Resultado: {_txt(t['reason_code'])}")
-            if t["risk_flags"]:
-                st.write("Alertas: " + ", ".join(_txt(f) for f in t["risk_flags"]))
+            st.write(f"**Nível de risco:** {_md(nome(t['reason_code']))}")
+            if alertas := alert_flags(t["risk_flags"]):
+                st.write(f"**Alertas:** {_md(', '.join(alertas))}")
+            if t.get("reasons"):
+                st.write("**O que pesou:**")
             for m in t.get("reasons", []):
                 st.write(f"- {m}")
 
